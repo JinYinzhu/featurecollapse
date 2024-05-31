@@ -15,9 +15,8 @@ class FeatureCollapser():
     def fit(self, X):
         #this is to set the baseline value as the mean feature values of the given dataset
         f_val_sum = 0
-        if self.baseline_val is None:
-            for x in X:
-                f_val_sum += self.f(x).detach().item()
+        for x in X:
+            f_val_sum += self.f(x).detach().item()
         self.baseline_val = f_val_sum/len(X)
     
     def transform(self, X, step_size, max_step=1000):
