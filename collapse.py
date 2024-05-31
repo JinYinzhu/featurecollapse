@@ -33,9 +33,12 @@ class FeatureCollapser():
         
         X_new = []
         cnt = 0
+        leng = len(X)
+        points = [int(leng/10*(i+1)) for i in range(10)]
         for x in X:
             cnt += 1
-            print(cnt, end=' ')
+            if cnt in points:
+                print(str(cnt)+'/'+str(leng), end=' ')
             z = self.vae.encode(x.unsqueeze(0))
             zi = z.detach().clone()
             zi.requires_grad = True
