@@ -33,20 +33,23 @@ class FeatureCollapser():
         
         X_new = []
         for x in X:
-            xi = x.detach().clone()
+            z = self.vae.encode(x.unsqueeze(0))
+            zi = z.detach().clone()
+            zi.requires_grad = True
+            xi = self.vae.decode(zi)
             f0 = self.f(xi).detach().item()
-            xi.requires_grad = True
             
             for i in range(max_step):
                 fx = self.f(xi)
                 if (fx-self.baseline_val)*(f0-self.baseline_val)<=0:
                     break
                 fx.backward()
-                gradx = xi.grad.data.detach()
+                gradz = zi.grad.data.detach()
                 
-                newx = xi - step_size*gradx*torch.sign(fx-self.baseline_val)
-                xi = newx.detach().clone()
-                xi.requires_grad = True
+                newz = zi - step_size*gradz*torch.sign(fx-self.baseline_val)
+                zi = newz.detach().clone()
+                zi.requires_grad = True
+                xi = self.vae.decode(zi)
              
             if i==max_step-1:
                 raise Exception("Maximum step reached, try larger step size or larger maximum step\n"\
