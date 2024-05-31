@@ -4,8 +4,8 @@ import os
 
 class Ellipse():
     def __init__(self, data_path, device = 'cpu'):
-        circle = np.load(os.path.join(data_path,'X_0.npy'))[:500]
-        line = np.load(os.path.join(data_path,'X_1.npy'))[:500]
+        circle = np.load(os.path.join(data_path,'X_0.npy'))
+        line = np.load(os.path.join(data_path,'X_1.npy'))
         X = np.concatenate([circle,line],0)
         X = np.expand_dims(X,1).astype(np.float32)
         self.X = torch.Tensor(X).to(device)
