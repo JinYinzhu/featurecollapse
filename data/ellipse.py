@@ -3,17 +3,18 @@ import torch
 import os
 
 class Ellipse():
-    def __init__(self, data_path):
-        circle = np.load(os.path.join(data_path,'X_0.npy'))
-        line = np.load(os.path.join(data_path,'X_1.npy'))
+    def __init__(self, data_path, device = 'cpu'):
+        circle = np.load(os.path.join(data_path,'X_0.npy'))[:500]
+        line = np.load(os.path.join(data_path,'X_1.npy'))[:500]
         X = np.concatenate([circle,line],0)
         X = np.expand_dims(X,1).astype(np.float32)
-        self.X = torch.Tensor(X)
+        self.X = torch.Tensor(X).to(device)
         self.rv = None
+        self.device = device
         
     def xpos(self, x):
         x = x.squeeze()
-        xidx = torch.arange(x.shape[1]).float().unsqueeze(1)
+        xidx = torch.arange(x.shape[1]).float().unsqueeze(1).to(self.device)
         h_sum = torch.sum(torch.matmul(x,xidx))
         scaler = torch.sum(x)
         mu = h_sum/scaler
@@ -21,7 +22,7 @@ class Ellipse():
     
     def ypos(self, x):
         x = x.squeeze()
-        yidx = torch.arange(x.shape[0]).float().unsqueeze(0)
+        yidx = torch.arange(x.shape[0]).float().unsqueeze(0).to(self.device)
         v_sum = torch.sum(torch.matmul(yidx,x))
         scaler = torch.sum(x)
         mu = v_sum/scaler
@@ -33,8 +34,8 @@ class Ellipse():
     def ar(self, x):
         #log aspect ratio
         x = x.squeeze()
-        yidx = torch.arange(x.shape[0]).float().unsqueeze(0)
-        xidx = torch.arange(x.shape[1]).float().unsqueeze(1)
+        yidx = torch.arange(x.shape[0]).float().unsqueeze(0).to(self.device)
+        xidx = torch.arange(x.shape[1]).float().unsqueeze(1).to(self.device)
         v_sum = torch.sum(torch.matmul(yidx,x))
         h_sum = torch.sum(torch.matmul(x,xidx))
         scaler = torch.sum(x)
@@ -59,6 +60,7 @@ class Ellipse():
             self.rv = rv_value.reshape(-1)
         else:
             raise Exception("Incorrect random vector size")
+        self.rv = torch.Tensor(self.rv).to(self.device)
     
     def RLF(self, x):
         if self.rv is None:

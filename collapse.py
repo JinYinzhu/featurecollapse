@@ -32,7 +32,10 @@ class FeatureCollapser():
             raise Exception("Baseline value is not set")
         
         X_new = []
+        cnt = 0
         for x in X:
+            cnt += 1
+            print(cnt, end=' ')
             z = self.vae.encode(x.unsqueeze(0))
             zi = z.detach().clone()
             zi.requires_grad = True
